@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Центр розсилки</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body class="bg-light">
+<div class="container mt-5" style="max-width: 800px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>📢 Центр розсилки Telegram</h2>
+        <div>
+            <a href="/users" class="btn btn-outline-secondary">👥 База учасників</a>
+        </div>
+    </div>
+
+    {% if success is not none %}
+    <div class="alert alert-success shadow-sm">
+        ✅ Розсилка успішно завершена! Повідомлення отримали <b>{{ success }}</b> людей.
+    </div>
+    {% endif %}
+
+    <div class="card shadow p-4">
+        <form id="broadcastForm" action="/broadcast" method="post">
+            <div class="mb-3">
+                <label class="form-label fw-bold">1. Кому відправляємо?</label>
+                <select name="audience" class="form-select border-primary" required>
+                    <option value="all">🌍 Всім зареєстрованим учасникам</option>
+                    <option value="vntu">🎓 Тільки студентам ВНТУ (наприклад, реклама універу)</option>
+                    <option value="not_vntu">🎒 Тим, хто НЕ з ВНТУ</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label fw-bold">2. Текст повідомлення</label>
+                <textarea name="text" class="form-control" rows="6" placeholder="Привіт! Нагадуємо, що івент відбудеться завтра о 12:00..." required></textarea>
+                <small class="text-muted">Ти можеш використовувати форматування Markdown (жирний текст виділяй зірочками: **текст**).</small>
+            </div>
+
+            <button type="button" class="btn btn-primary btn-lg w-100" data-bs-toggle="modal" data-bs-target="#confirmModal">
+                🚀 Почати розсилку
+            </button>
+            
+            <div class="modal fade" id="confirmModal" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-danger">
+                        <div class="modal-header bg-danger text-white">
+                            <h5 class="modal-title">⚠️ Увага!</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body text-center py-4">
+                            <h4 class="mb-3">Ви точно хочете це відправити?</h4>
+                            <p class="text-muted">Повідомлення буде миттєво розіслано людям прямо в Telegram. Відмінити цю дію буде неможливо.</p>
+                        </div>
+                        <div class="modal-footer justify-content-center">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ні, скасувати</button>
+                            <button type="submit" class="btn btn-danger px-4">Так, відправити!</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </form>
+    </div>
+</div>
+</body>
+</html>

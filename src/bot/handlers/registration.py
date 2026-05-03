@@ -31,18 +31,16 @@ async def cmd_start(message: Message, state: FSMContext):
     await state.clear() # Очищаємо стан на випадок, якщо юзер перезапустив бота
     
     kb = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="ℹ️ Загальна інформація", callback_data="menu_info")],
+        [InlineKeyboardButton(text="ℹ️ Політика конфіденційності", callback_data="menu_info")],
         [InlineKeyboardButton(text="📋 Реєстрація", callback_data="menu_reg")],
-        [InlineKeyboardButton(text="👨‍💻 Організатори", callback_data="menu_org")]
     ])
     
     text = (
         "Привіт, майбутній учаснику! 👋\n\n"
         "Ласкаво просимо до офіційного бота Ярмарку Кар’єри від BEST Vinnytsia.\n"
         "Цей бот може:\n"
-        "ℹ️ Розповісти все необхідне про Ярмарок Кар’єри;\n"
         "📋 Допомогти зареєструватись на подію;\n"
-        "👨‍💻 Дізнатись більше про організаторів;\n"
+        "ℹ️ Політика конфіденційності;\n"
         "⏳ Нагадати про проведення події.\n\n"
         "Реєструйся та не упусти можливість знайти роботу своєї мрії!"
     )
@@ -51,12 +49,12 @@ async def cmd_start(message: Message, state: FSMContext):
 # --- КНОПКИ ГОЛОВНОГО МЕНЮ ---
 @router.callback_query(F.data == "menu_info")
 async def show_info(callback: CallbackQuery):
-    await callback.message.answer("Коротко про Ярмарок Кар'єри від PR. Більш детальна інформація про Ярмарок Кар'єри розміщена на сайті: ")
+    await callback.message.answer("Ми цінуємо твою конфіденційність! Вся інформація, яку ти надаєш під час реєстрації, буде використовуватись виключно для організації події, зв’язку з тобою та захищена відповідно до <a href='https://zakon.rada.gov.ua/laws/show/privacy'>чинного законодавства</a>. Ми не передаємо твої дані третім особам без твого дозволу.")
     await callback.answer()
 
 @router.callback_query(F.data == "menu_org")
 async def show_org(callback: CallbackQuery):
-    await callback.message.answer("Інформація про Core Team i BEST.\nПосилання на сайт: ")
+    await callback.message.answer("Board of European Students of Technology — європейська студентська волонтерська організація, яка з 1989 року підтримує та розвиває студентів по всій Європі. Ми надаємо можливість покращити свої навички відвідуючи міжнародні курси та організовуючи події, такі як ця.\nПосилання на сайт: https://best-vinnytsia.org/")
     await callback.answer()
 
 
@@ -222,7 +220,18 @@ async def process_days(callback: CallbackQuery, state: FSMContext):
     await callback.message.edit_text("Звідки дізналися:", reply_markup=kb)
     await state.set_state(RegState.source)
 
-# 9. Фініш та збереження в БД
+# 10. Згода на передачу даних компаніям
+@router.message(RegState.additional_info, F.text)
+async def process_additional(message: Message, state: FSMContext):
+    await state.update_data(additional_info=message.text)
+    
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Погоджуюсь ✅", callback_data="aggree")]
+    ])
+    await message.answer("Чи даєш згоду на передачу даних компаніям?", reply_markup=kb)
+    await state.set_state(RegState.days)
+
+# 10. Фініш та збереження в БД
 @router.callback_query(RegState.source, F.data.startswith("src_"))
 async def process_source(callback: CallbackQuery, state: FSMContext):
     source = callback.data.split("_")[1]
